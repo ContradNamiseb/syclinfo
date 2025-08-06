@@ -48,8 +48,11 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
-          wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe
-          intel-oneapi-base-toolkit-2025.2.0.591_offline.exe -a --silent --eula accept
+          # Download Intel oneAPI Base Toolkit installer
+          Invoke-WebRequest -Uri "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe" -OutFile "intel-oneapi-base-toolkit.exe"
+          # Run the installer silently
+          Start-Process -FilePath "intel-oneapi-base-toolkit.exe" -ArgumentList "-a --silent --eula accept" -Wait
+
 
 
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
