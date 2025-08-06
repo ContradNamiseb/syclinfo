@@ -1,0 +1,65 @@
+name: Main-Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+         # Linux only, for now
+          - os: ubuntu-22.04
+            artifact_name: syclinfo-ubuntu-22.04
+          - os: ubuntu-24.04
+            artifact_name: syclinfo-ubuntu-24.04 
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ~~  DEPENDENCY INSTALLATION ~~
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+      - name: Install SYCL dependencies(Intel oneAPI)
+        run: |
+          # Install Intel oneAPI DPC++ Compiler and dependencies
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+          sudo apt-get update
+          sudo apt-get install -y \
+            intel-oneapi-dpcpp-cpp-2025.2 \
+            intel-oneapi-dpcpp-ct \
+            intel-oneapi-mkl-devel \
+            opencl-headers \
+            ocl-icd-opencl-dev
+
+      # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # ~~~         BUILD          ~~~
+      # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      - name: Build
+        run: |
+         source /opt/intel/oneapi/setvars.sh
+         export CXX=/opt/intel/oneapi/compiler/latest/bin/icpx
+         $CXX --version
+         icx -fsycl syclinfo.cpp -o syclinfo
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: syclinfo
+
+
+
+            
