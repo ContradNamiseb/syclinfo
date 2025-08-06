@@ -17,12 +17,12 @@
 ### 1. Prerequisites
 
 - **Intel oneAPI Base Toolkit** (make sure it includes the DPC++ compiler).
-- A supported SYCL device (e.g. Intel GPU or CPU).
+- A supported SYCL device (e.g. Intel GPU, iGPU or CPU).
 
 ### 2. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/syclinfo.git
+git clone https://github.com/your-username/syclinfo.git syclinfo
 cd syclinfo
 ```
 
