@@ -49,9 +49,14 @@ jobs:
         shell: cmd
         run: |
           # Download Intel oneAPI Base Toolkit installer
-          Invoke-WebRequest -Uri "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe" -OutFile "intel-oneapi-base-toolkit.exe"
-          # Run the installer silently
-          Start-Process -FilePath "intel-oneapi-base-toolkit.exe" -ArgumentList "-a --silent --eula accept" -Wait
+          $url = "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe"
+          $output = "intel-oneapi-base-toolkit.exe"
+          Write-Host "Downloading Intel oneAPI Base Toolkit..."
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Write-Host "Installing Intel oneAPI Base Toolkit..."
+          Start-Process -FilePath $output -ArgumentList "-a --silent --eula accept" -Wait -NoNewWindow
+          Remove-Item $output -Force
+          Write-Host "Installation completed."
 
 
 
