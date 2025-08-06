@@ -1,5 +1,6 @@
 name: Main-Build
 
+
 on:
   push:
     branches:
@@ -15,10 +16,10 @@ jobs:
       matrix:
         include:
          # Linux only, for now
-          - os: windows-latest
-            artifact_name: syclinfo-ubuntu-windows
+          - os: ubuntu-22.04
+            artifact_name: syclinfo-ubuntu-22.04
           - os: ubuntu-24.04
-            artifact_name: syclinfo-ubuntu-24.04
+            artifact_name: syclinfo-ubuntu-24.04 
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -27,9 +28,8 @@ jobs:
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ~~  DEPENDENCY INSTALLATION ~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-      - name: Install SYCL dependencies(Intel oneAPI) Linux
-        if: matrix.os == 'ubuntu-24.04' 
+
+      - name: Install SYCL dependencies(Intel oneAPI)
         run: |
           # Install Intel oneAPI DPC++ Compiler and dependencies
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
@@ -44,22 +44,6 @@ jobs:
             opencl-headers \
             ocl-icd-opencl-dev
 
-      - name: Install SYCL dependencies(Intel oneAPI) Windows
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          # Download Intel oneAPI Base Toolkit installer
-          $url = "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe"
-          $output = "intel-oneapi-base-toolkit.exe"
-          Write-Host "Downloading Intel oneAPI Base Toolkit..."
-          Invoke-WebRequest -Uri $url -OutFile $output
-          Write-Host "Installing Intel oneAPI Base Toolkit..."
-          Start-Process -FilePath $output -ArgumentList "-a --silent --eula accept" -Wait -NoNewWindow
-          Remove-Item $output -Force
-          Write-Host "Installation completed."
-
-
-
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       # ~~~         BUILD          ~~~
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,19 +55,8 @@ jobs:
          $CXX --version
          icx -fsycl syclinfo.cpp -o syclinfo
 
-      - name: Build on Windows
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-          icx -fsycl syclinfo.cpp -o syclinfo.exe
-
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.4.3
         with:
           name: ${{ matrix.artifact_name }}
           path: syclinfo
-
-
-
-            
