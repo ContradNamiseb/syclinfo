@@ -15,10 +15,10 @@ jobs:
       matrix:
         include:
          # Linux only, for now
-          - os: ubuntu-22.04
-            artifact_name: syclinfo-ubuntu-22.04
+          - os: windows-latest
+            artifact_name: syclinfo-ubuntu-windows
           - os: ubuntu-24.04
-            artifact_name: syclinfo-ubuntu-24.04 
+            artifact_name: syclinfo-ubuntu-24.04
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,7 +28,8 @@ jobs:
     # ~~  DEPENDENCY INSTALLATION ~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-      - name: Install SYCL dependencies(Intel oneAPI)
+      - name: Install SYCL dependencies(Intel oneAPI) Linux
+        if: matrix.os == 'ubuntu-24.04' 
         run: |
           # Install Intel oneAPI DPC++ Compiler and dependencies
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
@@ -43,6 +44,13 @@ jobs:
             opencl-headers \
             ocl-icd-opencl-dev
 
+      - name: Install SYCL dependencies(Intel oneAPI) Windows
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          curl -LO https://registrationcenter-download.intel.com/akdlm/IRC_NAS/7f1d7984-3905-44b0-ae6b-79a214fae372/w_dpcpp-cpp-compiler_p_2025.2.0.75_offline.exe
+          w_dpcpp-cpp-compiler_p_2025.2.0.75_offline.exe -s -a --silent --eula accept
+
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       # ~~~         BUILD          ~~~
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,6 +61,13 @@ jobs:
          export CXX=/opt/intel/oneapi/compiler/latest/bin/icpx
          $CXX --version
          icx -fsycl syclinfo.cpp -o syclinfo
+
+      - name: Build on Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+          icx -fsycl syclinfo.cpp -o syclinfo.exe
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.4.3
