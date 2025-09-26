@@ -22,7 +22,7 @@
 ### 2. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/syclinfo.git syclinfo
+git clone https://github.com/ContradNamiseb/syclinfo.git syclinfo
 cd syclinfo
 ```
 
